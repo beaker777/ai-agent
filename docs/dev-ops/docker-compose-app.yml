@@ -3,17 +3,46 @@ version: '3.8'
 # docker-compose -f docker-compose-app.yml up -d
 # 你需要修改system为你自身系统的仓库名
 services:
-  ai-agent:
-    image: system/ai-agent:1.0
-    container_name: ai-agent
-    restart: on-failure
+  # MCP 服务，CSDN 发帖，注意 CSDN_API_COOKIE 修改为你的。
+  mcp-server-csdn-app:
+    image: registry.cn-hangzhou.aliyuncs.com/fuzhengwei/mcp-server-csdn-app:1.1
+    container_name: mcp-server-csdn-app
+    restart: always
     ports:
-      - "8091:8091"
-    environment:
-      - TZ=PRC
-      - SERVER_PORT=8091
+      - "8101:8101"
     volumes:
       - ./log:/data/log
+    environment:
+      - TZ=PRC
+      - SERVER_PORT=8101
+      - CSDN_API_CATEGORIES=Java场景面试宝典
+      - CSDN_API_COOKIE=uuid_tt_dd=10_9743315130-1760851927490-179052; fid=20_98564434595-1760851927149-404222; UserName=2402_87807437; UserInfo=fb555cb7d60a4814b421e30130d687d0; UserToken=fb555cb7d60a4814b421e30130d687d0; UserNick=beaker490; AU=DE6; UN=2402_87807437; BT=1760851944575; p_uid=U010000; FCCDCF=%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2286e2de62-7df0-4963-ae4f-561c7f410c6a%5C%22%2C%5B1762167936%2C888000000%5D%5D%22%5D%5D%5D; FCNEC=%5B%5B%22AKsRol8G00Fv-5-v00_VhaaAkfsFgkRHUI-inJE7z7IxH6AxSsKBh666S_mQ1F-kRRG40NJMfbRq2Js1uhmqcN6hTCJLv9-hr5qI48jqld6tGT1PgzPwj4bE-GJUHAHwmUpP5eDPnZnPPc7o3fmH2ODlpdOKyATCtQ%3D%3D%22%5D%5D; c_ins_fpage=/index.html; c_ins_um=-; ins_first_time=1765272731691; c_ins_prid=1765272730360_665352; c_ins_rid=1765272733438_127173; c_ins_fref=https://blog.csdn.net/chan12345678910/article/details/147051485; c_dl_um=-; csdn_newcert_2402_87807437=1; c_dl_prid=1766319366171_912466; c_dl_rid=1770837167345_311679; c_dl_fref=https%3A//www.quark.cn/s/B397ZeWT23kJ0kAzlR; c_dl_fpage=/download/weixin_42703501/ 91617533; c_first_ref=www.quark.cn; c_segment=12; dc_sid=ce619eca44b13548f5e326cbcbd16fbc; Hm_lvt_6bcd52f51e9b3dce32bec4a3997715ac=1773046774,1773639978; HMACCOUNT=122A7A95C9B628B0; Hm_ct_6bcd52f51e9b3dce32bec4a3997715ac=6525*1*10_9743315130-1760851927490-179052^!5744*1*2402_87807437; __gads=ID=6d85f203eb0c7d50:T=1761020471:RT=1773639984:S=ALNI_MbLzK5_ppsqeLXVFUcDTn32Xc0WVQ; __gpi=UID=000012bd320e2342:T=1761020471:RT=1773639984:S=ALNI_MbQUDzwl2tx2U-0Xuz7OSg-Vu-DWw; __eoi=ID=9d672f45bae76d0d:T=1761020471:RT=1773639984:S=AA-Afjafgm3yM-hHpwb5vkAnPmlV; creative_btn_mp=3; dc_session_id=10_1774088870631.110829; c_first_page=https%3A//www.csdn.net/; c-sidebar-collapse=0; c_ab_test=1; c_dsid=11_1774088982497.095427; _clck=1v2a9pp%5E2%5Eg4j%5E0%5E2133; _clsk=1229jxz%5E1774088991827%5E1%5E0%5Ev.clarity.ms%2Fcollect; c_pref=https%3A//blog.csdn.net/%3Fspm%3D1000.2115.3001.4477; c_ref=https%3A//mp.csdn.net/; c_page_id=default; Hm_lpvt_6bcd52f51e9b3dce32bec4a3997715ac=1774088994; log_Id_pv=7; log_Id_view=227; log_Id_click=6; dc_tos=tc8vyy; SESSION=f0c3a6d1-b189-4bb9-b9c6-e9ee856969a1
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - my-network
+
+  # MCP 服务，微信公众号通知，注意 environment 下的微信配置修改为你的 https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
+  mcp-server-weixin-app:
+    #    image: fuzhengwei/mcp-server-weixin-app:1.1
+    image: registry.cn-hangzhou.aliyuncs.com/fuzhengwei/mcp-server-weixin-app:1.1
+    container_name: mcp-server-weixin-app
+    restart: always
+    ports:
+      - "8102:8102"
+    volumes:
+      - ./log:/data/log
+    environment:
+      - TZ=PRC
+      - SERVER_PORT=8102
+      - WEIXIN_API_ORIGINAL_ID=gh_f1cf60e74c75
+      - WEIXIN_API_APP_ID=wx67324307573186c3
+      - WEIXIN_API_APP_SECRET=450c87d10dd045bb9cd7986b84230c4e
+      - WEIXIN_API_TEMPLATE_ID=bGZy1J1xmwXUxC62WqA_mvTUutryugnWJgrFYs-VF6I
+      - WEIXIN_API_TOUSER=oql0x3F_r1HB0Zql1cuAkVnaSWFw
     logging:
       driver: "json-file"
       options:

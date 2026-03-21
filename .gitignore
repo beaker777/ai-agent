@@ -36,3 +36,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Test ###
+/ai-agent-app/src/test/**
