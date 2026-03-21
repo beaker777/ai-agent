@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.beaker.infrastructure.dao.IAiAgentFlowConfigDao">
+
+    <resultMap id="BaseResultMap" type="com.beaker.infrastructure.dao.po.AiAgentFlowConfig">
+        <id column="id" property="id"/>
+        <result column="agent_id" property="agentId"/>
+        <result column="client_id" property="clientId"/>
+        <result column="sequence" property="sequence"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        id, agent_id, client_id, sequence, create_time
+    </sql>
+
+    <insert id="insert" parameterType="com.beaker.infrastructure.dao.po.AiAgentFlowConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_agent_flow_config (agent_id, client_id, sequence, create_time)
+        VALUES (#{agentId}, #{clientId}, #{sequence}, #{createTime})
+    </insert>
+
+    <update id="update" parameterType="com.beaker.infrastructure.dao.po.AiAgentFlowConfig">
+        UPDATE ai_agent_flow_config
+        SET agent_id = #{agentId},
+            client_id = #{clientId},
+            sequence = #{sequence},
+            create_time = #{createTime}
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM ai_agent_flow_config
+        WHERE id = #{id}
+    </select>
+
+    <select id="queryAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM ai_agent_flow_config
+        ORDER BY id DESC
+    </select>
+
+</mapper>
