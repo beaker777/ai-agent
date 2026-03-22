@@ -254,7 +254,7 @@ public class AgentRepository implements IAgentRepository {
                     AiClientAdvisorVO.RagAnswer ragAnswer = null;
 
                     String extParam = advisor.getExtParam();
-                    if (extParam != null && !extParam.trim().isEmpty()) {
+                    if (extParam != null && !extParam.isBlank()) {
                         try {
                             if ("ChatMemory".equals(advisor.getAdvisorType())) {
                                 // 解析 chatMemory 配置

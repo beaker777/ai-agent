@@ -60,6 +60,15 @@ public class AiClientLoadDataStrategy implements ILoadDataStrategy {
             log.info("查询配置数据(ai_client) {}", clientIdList);
             return repository.AiClientVOByClientIds(clientIdList);
         }, threadPoolExecutor);
+
+        CompletableFuture.allOf(aiClientListFuture).thenRun(() -> {
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_API.getDataName(), aiClientApiListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_MODEL.getDataName(), aiClientModelListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_SYSTEM_PROMPT.getDataName(), aiClientSystemPromptListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_TOOL_MCP.getDataName(), aiClientToolMcpListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_ADVISOR.getLoadDataStrategy(), aiClientAdvisorListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT.getLoadDataStrategy(), aiClientListFuture.join());
+        }).join();
     }
 
 }

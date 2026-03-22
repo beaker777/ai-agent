@@ -2,8 +2,10 @@ package com.beaker.domain.agent.service.armory;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.beaker.domain.agent.model.entity.ArmoryCommandEntity;
+import com.beaker.domain.agent.model.valobj.AiAgentEnumVO;
 import com.beaker.domain.agent.service.armory.business.data.ILoadDataStrategy;
 import com.beaker.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class RootNode extends AbstractArmorySupport{
 
+    @Resource
+    private AiClientApiNode aiClientApiNode;
+
     private final Map<String, ILoadDataStrategy> loadDataStrategyMap;
 
     public RootNode(Map<String, ILoadDataStrategy> loadDataStrategyMap) {
@@ -27,22 +32,26 @@ public class RootNode extends AbstractArmorySupport{
     }
 
     @Override
-    protected void multiThread(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
+    protected void multiThread(ArmoryCommandEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
         // 获取命令种类
-        String commandType = armoryCommandEntity.getCommandType();
-        // 根据对应的加载策略
-        ILoadDataStrategy loadDataStrategy = loadDataStrategyMap.get(commandType);
-        // 多线程加载数据
-        loadDataStrategy.loadData(armoryCommandEntity, dynamicContext);
+        String commandType = requestParameter.getCommandType();
+
+        // 获取策略
+        AiAgentEnumVO aiAgentEnumVO = AiAgentEnumVO.getByCode(commandType);
+        String loadDataStrategyKey = aiAgentEnumVO.getLoadDataStrategy();
+
+        // 加载数据
+        ILoadDataStrategy loadDataStrategy = loadDataStrategyMap.get(loadDataStrategyKey);
+        loadDataStrategy.loadData(requestParameter, dynamicContext);
     }
 
     @Override
-    protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return router(armoryCommandEntity, dynamicContext);
+    protected String doApply(ArmoryCommandEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+        return router(requestParameter, dynamicContext);
     }
 
     @Override
     public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return defaultStrategyHandler;
+        return aiClientApiNode;
     }
 }
