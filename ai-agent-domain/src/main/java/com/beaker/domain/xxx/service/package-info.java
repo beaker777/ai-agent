@@ -1,1 +1,0 @@
-package com.beaker.domain.xxx.service;
