@@ -6,6 +6,7 @@ import com.beaker.domain.agent.model.entity.ArmoryCommandEntity;
 import com.beaker.domain.agent.model.valobj.AiAgentEnumVO;
 import com.beaker.domain.agent.model.valobj.AiClientApiVO;
 import com.beaker.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,15 @@ import java.util.List;
 @Service
 @Slf4j
 public class AiClientApiNode extends AbstractArmorySupport{
+
+    @Resource
+    private AiClientToolMcpNode aiClientToolMcpNode;
+
     @Override
     protected String doApply(ArmoryCommandEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         log.info("Ai agent 构建, Api 节点 {}", JSON.toJSONString(requestParameter));
 
-        List<AiClientApiVO> aiClientApiList = dynamicContext.getValue(AiAgentEnumVO.AI_CLIENT_API.getDataName());
+        List<AiClientApiVO> aiClientApiList = dynamicContext.getValue(dataName());
 
         if (aiClientApiList == null || aiClientApiList.isEmpty()) {
             log.warn("没有要被初始化的 ai client api");
@@ -40,7 +45,7 @@ public class AiClientApiNode extends AbstractArmorySupport{
                     .embeddingsPath(aiClientApiVO.getEmbeddingsPath())
                     .build();
 
-            registerBean(AiAgentEnumVO.AI_CLIENT_API.getBeanName(aiClientApiVO.getApiId()), OpenAiApi.class, openAiApi);
+            registerBean(beanName(aiClientApiVO.getApiId()), OpenAiApi.class, openAiApi);
         }
 
         return router(requestParameter, dynamicContext);
@@ -48,6 +53,16 @@ public class AiClientApiNode extends AbstractArmorySupport{
 
     @Override
     public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return defaultStrategyHandler;
+        return aiClientToolMcpNode;
+    }
+
+    @Override
+    protected String beanName(String id) {
+        return AiAgentEnumVO.AI_CLIENT_API.getBeanName(id);
+    }
+
+    @Override
+    protected String dataName() {
+        return AiAgentEnumVO.AI_CLIENT_API.getDataName();
     }
 }
