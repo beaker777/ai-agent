@@ -44,7 +44,7 @@ spring:
   ai:
     openai:
       base-url: https://apis.itedus.cn
-      api-key: sk-iL89(ur api)42658d7f331b373a8aD3
+      api-key: sk-iL8(ur api)D3
 
 # MyBatis 配置【如需使用记得打开】
 #mybatis:

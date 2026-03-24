@@ -3,6 +3,7 @@ package com.beaker.domain.agent.adapter.repository;
 import com.beaker.domain.agent.model.valobj.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author beaker
@@ -27,5 +28,5 @@ public interface IAgentRepository {
 
     List<AiClientModelVO> AiClientModelVOByModelIds(List<String> modelIdList);
 
-
+    Map<String, AiClientSystemPromptVO> queryAiClientSystemPromptMapByClientIds(List<String> clientIdList);
 }

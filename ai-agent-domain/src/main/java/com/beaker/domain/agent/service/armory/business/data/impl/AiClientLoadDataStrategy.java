@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -46,9 +47,9 @@ public class AiClientLoadDataStrategy implements ILoadDataStrategy {
             return repository.AiClientToolMcpVOByClientIds(clientIdList);
         }, threadPoolExecutor);
 
-        CompletableFuture<List<AiClientSystemPromptVO>> aiClientSystemPromptListFuture = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Map<String, AiClientSystemPromptVO>> aiClientSystemPromptListFuture = CompletableFuture.supplyAsync(() -> {
             log.info("查询配置数据(ai_client_system_prompt) {}", clientIdList);
-            return repository.AiClientSystemPromptVOByClientIds(clientIdList);
+            return repository.queryAiClientSystemPromptMapByClientIds(clientIdList);
         }, threadPoolExecutor);
 
         CompletableFuture<List<AiClientAdvisorVO>> aiClientAdvisorListFuture = CompletableFuture.supplyAsync(() -> {
@@ -61,13 +62,14 @@ public class AiClientLoadDataStrategy implements ILoadDataStrategy {
             return repository.AiClientVOByClientIds(clientIdList);
         }, threadPoolExecutor);
 
-        CompletableFuture.allOf(aiClientApiListFuture, aiClientToolMcpListFuture, aiClientModelListFuture).thenRun(() -> {
+        CompletableFuture.allOf(aiClientApiListFuture, aiClientToolMcpListFuture, aiClientModelListFuture,
+                aiClientAdvisorListFuture, aiClientSystemPromptListFuture, aiClientListFuture).thenRun(() -> {
             dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_API.getDataName(), aiClientApiListFuture.join());
             dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_MODEL.getDataName(), aiClientModelListFuture.join());
             dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_SYSTEM_PROMPT.getDataName(), aiClientSystemPromptListFuture.join());
             dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_TOOL_MCP.getDataName(), aiClientToolMcpListFuture.join());
-            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_ADVISOR.getLoadDataStrategy(), aiClientAdvisorListFuture.join());
-            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT.getLoadDataStrategy(), aiClientListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT_ADVISOR.getDataName(), aiClientAdvisorListFuture.join());
+            dynamicContext.setValue(AiAgentEnumVO.AI_CLIENT.getDataName(), aiClientListFuture.join());
         }).join();
     }
 
