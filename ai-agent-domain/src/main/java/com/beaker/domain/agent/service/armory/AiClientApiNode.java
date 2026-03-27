@@ -3,7 +3,7 @@ package com.beaker.domain.agent.service.armory;
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.alibaba.fastjson.JSON;
 import com.beaker.domain.agent.model.entity.ArmoryCommandEntity;
-import com.beaker.domain.agent.model.valobj.AiAgentEnumVO;
+import com.beaker.domain.agent.model.valobj.enums.AiAgentEnumVO;
 import com.beaker.domain.agent.model.valobj.AiClientApiVO;
 import com.beaker.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import jakarta.annotation.Resource;

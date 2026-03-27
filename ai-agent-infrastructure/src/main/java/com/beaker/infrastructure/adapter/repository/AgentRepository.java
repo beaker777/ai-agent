@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.beaker.domain.agent.model.valobj.AiAgentEnumVO.*;
+import static com.beaker.domain.agent.model.valobj.enums.AiAgentEnumVO.*;
 
 /**
  * @Author beaker
@@ -45,6 +45,9 @@ public class AgentRepository implements IAgentRepository {
 
     @Resource
     private IAiClientDao aiClientDao;
+
+    @Resource
+    private IAiAgentFlowConfigDao aiAgentFlowConfigDao;
 
     @Override
     public List<AiClientApiVO> queryAiClientApiVOListByClientIds(List<String> clientIdList) {
@@ -489,5 +492,43 @@ public class AgentRepository implements IAgentRepository {
         }
 
         return result;
+    }
+
+    @Override
+    public Map<String, AiAgentClientFlowConfigVO> queryAiAgentClientFlowConfig(String aiAgentId) {
+        if (aiAgentId.isBlank()) {
+            return Collections.emptyMap();
+        }
+
+        try {
+            // 根据 agent id 查询流程配置列表
+            List<AiAgentFlowConfig> flowConfigs = aiAgentFlowConfigDao.queryByAgentId(aiAgentId);
+
+            if (flowConfigs == null || flowConfigs.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            // 转换为 map, key 是 client type, value 是 VO
+            Map<String, AiAgentClientFlowConfigVO> result = new HashMap<>();
+
+            for (AiAgentFlowConfig flowConfig : flowConfigs) {
+                AiAgentClientFlowConfigVO configVO = AiAgentClientFlowConfigVO.builder()
+                        .clientId(flowConfig.getClientId())
+                        .clientName(flowConfig.getClientName())
+                        .clientType(flowConfig.getClientType())
+                        .sequence(flowConfig.getSequence())
+                        .build();
+
+                result.put(flowConfig.getClientType(), configVO);
+            }
+
+            return result;
+        } catch (NumberFormatException e) {
+            log.error("Invalid aiAgentId ! :{}", aiAgentId);
+            return Collections.emptyMap();
+        } catch (Exception e) {
+            log.error("Query ai agent flow config failed ! {}", aiAgentId);
+            return Collections.emptyMap();
+        }
     }
 }

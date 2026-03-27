@@ -1,4 +1,4 @@
-package com.beaker.domain.agent.model.valobj;
+package com.beaker.domain.agent.model.valobj.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -16,15 +16,41 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AiAgentFlowConfig {
 
-    /** 主键ID。 */
+    /**
+     * 主键ID
+     */
     private Long id;
-    /** 智能体ID。 */
-    private Long agentId;
-    /** 客户端ID。 */
-    private Long clientId;
-    /** 序列号(执行顺序)。 */
+
+    /**
+     * 智能体ID
+     */
+    private String agentId;
+
+    /**
+     * 客户端ID
+     */
+    private String clientId;
+
+    /**
+     * 客户端名称
+     */
+    private String clientName;
+
+    /**
+     * 客户端枚举
+     */
+    private String clientType;
+
+    /**
+     * 序列号(执行顺序)
+     */
     private Integer sequence;
-    /** 创建时间。 */
+
+    /**
+     * 创建时间
+     */
     private LocalDateTime createTime;
+
+
 
 }

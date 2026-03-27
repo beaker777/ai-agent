@@ -1,5 +1,6 @@
-package com.beaker.domain.agent.model.valobj;
+package com.beaker.domain.agent.model.valobj.enums;
 
+import com.beaker.domain.agent.model.valobj.AiClientAdvisorVO;
 import com.beaker.domain.agent.service.armory.factory.element.RagAnswerAdvisor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -2,13 +2,12 @@ package com.beaker.domain.agent.service.armory;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.beaker.domain.agent.model.entity.ArmoryCommandEntity;
-import com.beaker.domain.agent.model.valobj.AiAgentEnumVO;
+import com.beaker.domain.agent.model.valobj.enums.AiAgentEnumVO;
 import com.beaker.domain.agent.model.valobj.AiClientSystemPromptVO;
 import com.beaker.domain.agent.model.valobj.AiClientVO;
 import com.beaker.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import io.modelcontextprotocol.client.McpSyncClient;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;

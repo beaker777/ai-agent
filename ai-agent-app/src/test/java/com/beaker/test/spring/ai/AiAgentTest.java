@@ -56,7 +56,7 @@ public class AiAgentTest {
 
         OpenAiApi openAiApi = OpenAiApi.builder()
                 .baseUrl("https://apis.itedus.cn")
-                .apiKey("sk-iL8992lPr1QiM(ur api)b373a8aD3")
+                .apiKey("sk-?3")
                 .completionsPath("v1/chat/completions")
                 .embeddingsPath("v1/embeddings")
                 .build();
@@ -81,7 +81,7 @@ public class AiAgentTest {
                         	 3. 获取发送到 CSDN 文章的 URL 地址。
                         	 4. 微信公众号消息通知，平台：CSDN、主题：为文章标题、描述：为文章简述、跳转地址：从发布文章到CSDN获取 URL 地址
                         """)
-//                .defaultToolCallbacks(new SyncMcpToolCallbackProvider(stdioMcpClient(), sseMcpClient01(), sseMcpClient02()).getToolCallbacks())
+                .defaultToolCallbacks(new SyncMcpToolCallbackProvider(stdioMcpClient(), sseMcpClient01(), sseMcpClient02()).getToolCallbacks())
                 .defaultAdvisors(
                         PromptChatMemoryAdvisor.builder(
                                 MessageWindowChatMemory.builder()
@@ -141,7 +141,7 @@ public class AiAgentTest {
 
     @Test
     public void test_02() {
-        String userInput = "王大瓜今年几岁";
+        String userInput = "我有哪些可以使用的工具? 将结果生成一个md文件保存到我的桌面上.";
         System.out.println("\n>>> QUESTION: " + userInput);
         System.out.println("\n>>> ASSISTANT: " + chatClient
                 .prompt(userInput)
@@ -278,18 +278,17 @@ public class AiAgentTest {
     }
 
     public McpSyncClient stdioMcpClient() {
-
         // based on
         // https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
         var stdioParams = ServerParameters.builder("npx.cmd")
                 .args(
                         "-y",
                         "@modelcontextprotocol/server-filesystem",
-                        "C:\\Users\\Administrator\\Desktop", "C:\\Users\\Administrator\\Desktop")
+                        "C:\\Users\\beaker\\Desktop")
                 .build();
 
         var mcpClient = McpClient.sync(new StdioClientTransport(stdioParams))
-                .requestTimeout(Duration.ofSeconds(10)).build();
+                .requestTimeout(Duration.ofSeconds(17)).build();
 
         var init = mcpClient.initialize();
 

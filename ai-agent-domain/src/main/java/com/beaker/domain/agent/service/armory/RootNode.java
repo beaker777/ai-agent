@@ -2,7 +2,6 @@ package com.beaker.domain.agent.service.armory;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.beaker.domain.agent.model.entity.ArmoryCommandEntity;
-import com.beaker.domain.agent.model.valobj.AiAgentEnumVO;
 import com.beaker.domain.agent.service.armory.business.data.ILoadDataStrategy;
 import com.beaker.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import jakarta.annotation.Resource;
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeoutException;
  * @Date 2026/3/22 15:13
  * @Description 根节点数据加载
  */
-@Service
+@Service("armoryRootNode")
 @Slf4j
 public class RootNode extends AbstractArmorySupport{
 

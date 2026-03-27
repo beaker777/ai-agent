@@ -1,6 +1,6 @@
 package com.beaker.domain.agent.model.entity;
 
-import com.beaker.domain.agent.model.valobj.AiAgentEnumVO;
+import com.beaker.domain.agent.model.valobj.enums.AiAgentEnumVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
