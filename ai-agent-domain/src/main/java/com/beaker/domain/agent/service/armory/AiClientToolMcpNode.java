@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -75,30 +77,17 @@ public class AiClientToolMcpNode extends AbstractArmorySupport{
         switch (transportType) {
             case "sse" -> {
                 AiClientToolMcpVO.TransportConfigSse transportConfigSse = aiClientToolMcpVO.getTransportConfigSse();
-                // http://127.0.0.1:8888/sse?apiKey=hasuoufbu
-                String originalBaseUri = transportConfigSse.getBaseUri();
-                String baseUri;
-                String sseEndpoint;
-
-                int queryParamStartIndex = originalBaseUri.indexOf("sse");
-                if (queryParamStartIndex != -1) {
-                    // 获取基础域名
-                    baseUri = originalBaseUri.substring(0, queryParamStartIndex - 1);
-                    // 获取具体端点
-                    sseEndpoint = originalBaseUri.substring(queryParamStartIndex - 1);
-                } else {
-                    // 获取基础域名
-                    baseUri = originalBaseUri;
-                    // 从数据库中获取具体端点
-                    sseEndpoint = transportConfigSse.getSseEndpoint();
-                }
-
-                // 默认端点
-                sseEndpoint = StringUtils.isBlank(sseEndpoint) ? "/sse" : sseEndpoint;
+                SseTransportOptions sseTransportOptions = resolveSseTransportOptions(aiClientToolMcpVO, transportConfigSse);
+                log.info("Initializing Tool Mcp SSE, mcpId: {}, mcpName: {}, baseUri: {}, sseEndpoint: {}, hasQuery: {}",
+                        aiClientToolMcpVO.getMcpId(),
+                        aiClientToolMcpVO.getMcpName(),
+                        sseTransportOptions.baseUri(),
+                        maskSensitiveQuery(sseTransportOptions.sseEndpoint()),
+                        sseTransportOptions.sseEndpoint().contains("?"));
 
                 HttpClientSseClientTransport sseClientTransport = HttpClientSseClientTransport
-                        .builder(baseUri)
-                        .sseEndpoint(sseEndpoint)
+                        .builder(sseTransportOptions.baseUri())
+                        .sseEndpoint(sseTransportOptions.sseEndpoint())
                         .build();
 
                 McpSyncClient mcpSyncClient = McpClient.sync(sseClientTransport)
@@ -131,4 +120,91 @@ public class AiClientToolMcpNode extends AbstractArmorySupport{
 
         throw new RuntimeException("error! transportType " + transportType + " not exist!");
     }
+
+    private SseTransportOptions resolveSseTransportOptions(AiClientToolMcpVO aiClientToolMcpVO,
+                                                           AiClientToolMcpVO.TransportConfigSse transportConfigSse) {
+        if (transportConfigSse == null) {
+            throw new IllegalArgumentException("SSE transport config is null, mcpId: " + aiClientToolMcpVO.getMcpId());
+        }
+
+        String baseUri = StringUtils.trimToEmpty(transportConfigSse.getBaseUri());
+        String sseEndpoint = StringUtils.trimToEmpty(transportConfigSse.getSseEndpoint());
+
+        if (StringUtils.isBlank(baseUri)) {
+            throw new IllegalArgumentException("SSE baseUri is blank, mcpId: " + aiClientToolMcpVO.getMcpId());
+        }
+
+        if (StringUtils.isBlank(sseEndpoint)) {
+            // 兼容旧配置：baseUri 存完整 SSE URL 时，从完整 URL 中解析 endpoint。
+            if (looksLikeFullSseUrl(baseUri)) {
+                return parseFullSseUrl(baseUri, aiClientToolMcpVO.getMcpId());
+            }
+
+            throw new IllegalArgumentException("SSE sseEndpoint is blank, mcpId: " + aiClientToolMcpVO.getMcpId());
+        }
+
+        if (!(sseEndpoint.startsWith("sse") || sseEndpoint.startsWith("/sse"))) {
+            throw new IllegalArgumentException("SSE sseEndpoint must start with sse or /sse, mcpId: "
+                    + aiClientToolMcpVO.getMcpId() + ", current: " + sseEndpoint);
+        }
+
+        if (!containsKnownAuthParam(sseEndpoint)) {
+            log.warn("SSE endpoint may be missing auth query parameter, mcpId: {}, sseEndpoint: {}",
+                    aiClientToolMcpVO.getMcpId(), maskSensitiveQuery(sseEndpoint));
+        }
+
+        return new SseTransportOptions(baseUri, sseEndpoint);
+    }
+
+    private boolean looksLikeFullSseUrl(String baseUri) {
+        return baseUri.contains("/sse") || baseUri.contains("sse?");
+    }
+
+    private SseTransportOptions parseFullSseUrl(String fullUrl, String mcpId) {
+        try {
+            URI uri = new URI(fullUrl);
+            String path = StringUtils.defaultString(uri.getPath());
+            int sseIndex = path.indexOf("/sse");
+            if (sseIndex < 0) {
+                throw new IllegalArgumentException("SSE full url does not contain /sse, mcpId: " + mcpId + ", fullUrl: " + fullUrl);
+            }
+
+            String basePath = path.substring(0, sseIndex + 1);
+            String endpointPath = path.substring(sseIndex + 1);
+            String query = uri.getRawQuery();
+
+            String parsedBaseUri = new URI(uri.getScheme(), uri.getAuthority(), basePath, null, null).toString();
+            String parsedSseEndpoint = StringUtils.isBlank(query) ? endpointPath : endpointPath + "?" + query;
+
+            if (!containsKnownAuthParam(parsedSseEndpoint)) {
+                log.warn("Parsed SSE endpoint may be missing auth query parameter, mcpId: {}, sseEndpoint: {}",
+                        mcpId, maskSensitiveQuery(parsedSseEndpoint));
+            }
+
+            return new SseTransportOptions(parsedBaseUri, parsedSseEndpoint);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid SSE full url, mcpId: " + mcpId + ", fullUrl: " + fullUrl, e);
+        }
+    }
+
+    private boolean containsKnownAuthParam(String sseEndpoint) {
+        return sseEndpoint.contains("api_key=")
+                || sseEndpoint.contains("apiKey=")
+                || sseEndpoint.contains("appId=")
+                || sseEndpoint.contains("appid=");
+    }
+
+    private String maskSensitiveQuery(String value) {
+        if (StringUtils.isBlank(value)) {
+            return value;
+        }
+
+        return value
+                .replaceAll("(api_key=)[^&]+", "$1***")
+                .replaceAll("(apiKey=)[^&]+", "$1***")
+                .replaceAll("(appId=)[^&]+", "$1***")
+                .replaceAll("(appid=)[^&]+", "$1***");
+    }
+
+    private record SseTransportOptions(String baseUri, String sseEndpoint) {}
 }

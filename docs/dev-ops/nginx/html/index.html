@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Auto Agent</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">AI</div>
+            <div>
+                <h1>AI Auto Agent</h1>
+                <p>简洁流式对话台</p>
+            </div>
+        </div>
+
+        <section class="sidebar-card">
+            <div class="sidebar-title">
+                <h2>设置</h2>
+                <span id="connectionStatus">空闲中</span>
+            </div>
+
+            <label class="field">
+                <span>接口地址</span>
+                <input id="apiBaseUrl" type="text" value="http://localhost:8091/api/v1/agent/auto_agent">
+            </label>
+
+            <div class="row">
+                <label class="field">
+                    <span>智能体</span>
+                    <select id="aiAgentSelect">
+                        <option value="3">Auto Agent</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>步数</span>
+                    <select id="maxStepSelect">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                    </select>
+                </label>
+            </div>
+
+            <label class="field">
+                <span>示例问题</span>
+                <select id="exampleSelect">
+                    <option value="">请选择</option>
+                    <option value="1+1">1+1</option>
+                    <option value="检索小傅哥的相关项目，列出一份学习计划">检索小傅哥的相关项目，列出一份学习计划</option>
+                    <option value="根据当前北京互联网程序员加班情况，收入，公司文化等，列出一份大学生推荐入职单位。">根据当前北京互联网程序员加班情况，收入，公司文化等，列出一份大学生推荐入职单位。</option>
+                </select>
+            </label>
+
+            <div class="session-box">
+                <span>会话 ID</span>
+                <strong id="sessionId"></strong>
+            </div>
+
+            <div class="button-row">
+                <button id="newChatBtn" class="secondary-btn" type="button">新建</button>
+                <button id="clearHistoryBtn" class="ghost-btn" type="button">清空历史</button>
+            </div>
+        </section>
+
+        <section class="sidebar-card history-card">
+            <div class="sidebar-title">
+                <h2>历史</h2>
+                <span>本地缓存</span>
+            </div>
+            <div id="chatHistory" class="history-list"></div>
+        </section>
+    </aside>
+
+    <main class="chat-layout">
+        <header class="topbar">
+            <div>
+                <h2>对话工作台</h2>
+                <p>消息在面板内部滚动，页面高度保持稳定。</p>
+            </div>
+        </header>
+
+        <section class="chat-panels">
+            <article class="chat-panel">
+                <div class="panel-head">
+                    <h3>过程</h3>
+                    <span>analysis / execution / supervision</span>
+                </div>
+                <div id="thinkingMessages" class="message-list"></div>
+            </article>
+
+            <article class="chat-panel">
+                <div class="panel-head">
+                    <h3>结果</h3>
+                    <span>summary / complete / error</span>
+                </div>
+                <div id="resultMessages" class="message-list"></div>
+            </article>
+        </section>
+
+        <section class="composer">
+            <div class="composer-head">
+                <span>任务描述</span>
+                <div class="composer-tabs">
+                    <button id="editTabBtn" class="tab-btn active" type="button">编辑</button>
+                    <button id="previewTabBtn" class="tab-btn" type="button">预览</button>
+                </div>
+            </div>
+            <div class="composer-body">
+                <label id="editorPane" class="field field-compact">
+                    <textarea id="messageInput" rows="3" maxlength="4000" placeholder="输入 Markdown 内容，Ctrl/Cmd + Enter 发送"></textarea>
+                </label>
+                <div id="previewPane" class="composer-preview markdown-preview hidden"></div>
+            </div>
+            <div class="composer-footer">
+                <p id="loadingHint">等待发送</p>
+                <button id="sendBtn" class="primary-btn" type="button">发送</button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="./js/index.js"></script>
+</body>
+</html>

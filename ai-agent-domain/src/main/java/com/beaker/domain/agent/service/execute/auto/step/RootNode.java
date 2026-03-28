@@ -24,7 +24,7 @@ public class RootNode extends AbstractExecuteSupport{
 
     @Override
     protected String doApply(ExecuteCommandEntity requestParameter, DefaultAutoAgentExecuteStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        log.info("=== 动态多轮执行测试开始 ====");
+        log.info("=== 动态多轮执行开始 ====");
         log.info("用户输入: {}", requestParameter.getMessage());
         log.info("最大执行步数: {}", requestParameter.getMaxStep());
         log.info("会话ID: {}", requestParameter.getSessionId());

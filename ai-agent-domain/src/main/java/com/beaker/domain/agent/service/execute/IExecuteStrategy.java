@@ -1,6 +1,7 @@
 package com.beaker.domain.agent.service.execute;
 
 import com.beaker.domain.agent.model.entity.ExecuteCommandEntity;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 /**
  * @Author beaker
@@ -9,5 +10,5 @@ import com.beaker.domain.agent.model.entity.ExecuteCommandEntity;
  */
 public interface IExecuteStrategy {
 
-    void execute(ExecuteCommandEntity requestParameter) throws Exception;
+    void execute(ExecuteCommandEntity requestParameter, ResponseBodyEmitter emitter) throws Exception;
 }
