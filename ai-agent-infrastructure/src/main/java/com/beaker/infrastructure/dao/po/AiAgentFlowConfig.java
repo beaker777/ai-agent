@@ -51,6 +51,9 @@ public class AiAgentFlowConfig {
      */
     private LocalDateTime createTime;
 
-
+    /**
+     * 步骤提示词
+     */
+    private String stepPrompt;
 
 }

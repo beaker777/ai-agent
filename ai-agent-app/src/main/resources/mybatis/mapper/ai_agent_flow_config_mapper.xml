@@ -10,6 +10,7 @@
         <result column="client_type" property="clientType"/>
         <result column="sequence" property="sequence"/>
         <result column="create_time" property="createTime"/>
+        <result column="step_prompt" property="stepPrompt"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.beaker.infrastructure.dao.po.AiAgentFlowConfig" useGeneratedKeys="true" keyProperty="id">
@@ -43,7 +44,7 @@
     </select>
 
     <select id="queryByAgentId" parameterType="java.lang.String" resultMap="AiAgentFlowConfigMap">
-        SELECT id, agent_id, client_id, client_name, client_type, sequence, create_time
+        SELECT id, agent_id, client_id, client_name, client_type, sequence, create_time, step_prompt
         FROM ai_agent_flow_config
         WHERE agent_id = #{agentId}
         ORDER BY sequence ASC
