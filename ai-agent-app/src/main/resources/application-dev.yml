@@ -43,12 +43,13 @@ spring:
         connection-timeout: 30000
   ai:
     openai:
-      base-url: https://apis.itedus.cn
-      api-key: sk-iL8(?)3a8aD3
+      base-url: https://yinli.one
+      api-key: sk-3tQ9QN(ur api)AH9smD2gXm7
     agent:
       auto-config:
         enable: true
-        client-ids: 3101,3102,3103,3104,4101,4102,4103,4104
+#        client-ids: 3101,3102,3103,3104,4101,4102,4103,4104
+        client-ids: 5101,5102,5103,5104
 
 # MyBatis 配置【如需使用记得打开】
 #mybatis:
